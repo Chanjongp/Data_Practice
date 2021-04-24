@@ -1,11 +1,14 @@
 import json
 from django.db.models.fields import DateField
+from django.http.response import JsonResponse
 from django.shortcuts import render
 from rest_framework import viewsets, mixins, generics, views
-from db.models import Person, VisitOccurrence
-from .serializers import PracticeSerializer
+from db.models import Person, VisitOccurrence, Concept
+from .serializers import ConceptIdInfoSerializer, PracticeSerializer
 from django.db.models import Count, Q
-from django.http import JsonResponse
+from rest_framework.response import Response
+from rest_framework import status
+from .pagination import CustomPagination
 
 
 class PracticeViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -17,7 +20,7 @@ class GetTotalPersonSum(generics.ListAPIView):
     # queryset = Person.objects.all()
     def get(self, request, *args, **kwargs):
         data = Person.objects.aggregate(Count('person_id'))
-        return JsonResponse(data)
+        return Response(data)
 
 
 class GetEachGenderPerson(generics.ListAPIView):
@@ -29,7 +32,7 @@ class GetEachGenderPerson(generics.ListAPIView):
     def get(self, request, *args, **kwargs):
         male = Person.objects.filter(gender_concept_id='8532').count()
         female = Person.objects.filter(gender_concept_id='8507').count()
-        return JsonResponse({'male': male, 'female': female})
+        return Response({'male': male, 'female': female})
 
 
 class GetEachRacePerson(generics.ListAPIView):
@@ -54,7 +57,7 @@ class GetEachRacePerson(generics.ListAPIView):
             Q(race_concept_id__in=['0']) & Q(race_source_value='other')).count()
         data = {'white': white, 'asian': asian,
                 'black': black, 'native': native, 'other': other}
-        return JsonResponse(data)
+        return Response(data)
 
 
 class GetEachEthnicPerson(generics.ListAPIView):
@@ -71,14 +74,14 @@ class GetEachEthnicPerson(generics.ListAPIView):
             Q(ethnicity_concept_id__in=['0']) & Q(
                 ethnicity_source_value='nonhispanic')).count()
         data = {'hispanic': hispanic, 'nonhispanic': nonhispanic}
-        return JsonResponse(data)
+        return Response(data)
 
 
 class GetDeathPerson(generics.ListAPIView):
     def get(self, request, *args, **kwargs):
         data = Person.objects.extra(tables=['death'], where=[
             'person.person_id=death.person_id']).count()
-        return JsonResponse({'death': data})
+        return Response({'death': data})
 
 
 class GetTypeVisitOccurrence(generics.ListAPIView):
@@ -97,7 +100,7 @@ class GetTypeVisitOccurrence(generics.ListAPIView):
             visit_concept_id__in=['9203']).count()
         data = {'Inpatient_Visit': in_visit,
                 'OutPatient_Visit': out_visit, 'Emergency_Room_Visit': emg_visit}
-        return JsonResponse(data)
+        return Response(data)
 
 
 class GetGenderVisitOccurrence(generics.ListAPIView):
@@ -110,7 +113,7 @@ class GetGenderVisitOccurrence(generics.ListAPIView):
             where=['person.gender_concept_id=8507']).count()
 
         data = {'female_visit': female_visit, 'male_visit': male_visit}
-        return JsonResponse(data)
+        return Response(data)
 
 
 class GetRaceVisitOccurrence(generics.ListAPIView):
@@ -137,7 +140,7 @@ class GetRaceVisitOccurrence(generics.ListAPIView):
             where=["person.race_concept_id=0", "person.race_source_value='other'"]).count()
         data = {"white_visit": white_visit, "asian_visit": asian_visit,
                 "black_visit": black_visit, "native_visit": native_visit, "other_visit": other_visit}
-        return JsonResponse(data)
+        return Response(data)
 
 
 class GetEthnicVisitOccurrence(generics.ListAPIView):
@@ -149,7 +152,7 @@ class GetEthnicVisitOccurrence(generics.ListAPIView):
         nonhis_visit = basic.extra(
             where=["person.ethnicity_concept_id=0", "person.ethnicity_source_value='nonhispanic'"]).count()
         data = {'hispanic_visit': his_visit, 'nonhispanic_visit': nonhis_visit}
-        return JsonResponse(data)
+        return Response(data)
 
 
 class GetAgeVisitOccurrence(generics.ListAPIView):
@@ -187,4 +190,34 @@ class GetAgeVisitOccurrence(generics.ListAPIView):
                 }
         # print(visit_0_to_10 + visit_11_to_20 + visit_21_to_30 + visit_31_to_40 + visit_41_to_50 + visit_51_to_60 +
         #       visit_61_to_70 + visit_71_to_80 + visit_81_to_90 + visit_91_to_100 + visit_101_to_110 + visit_111_to_120)
-        return JsonResponse(data)
+        return Response(data)
+
+# generics.ListAPIView
+# viewsets.ModelViewSet
+
+        #    return Response({'err_msg' : 'domain_id is not in request body.'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class GetConecptIdInformation(generics.ListAPIView):
+    serializer_class = ConceptIdInfoSerializer
+    pagination_class = CustomPagination
+
+    def get_queryset(self):
+        """
+        1. domain_id, concept_name이 모두 request에 있을 때
+        2. domain만 request에 있을 때
+        3. concept_name만 request에 있을 때
+        4. 둘다 없으면 전체 값 Response
+        """
+        req_json = json.loads(self.request.body)
+        if "domain_id" in req_json and "concept_name" in req_json:
+            domain_id = req_json['domain_id']
+            concept_name = req_json['concept_name']
+            return Concept.objects.filter(domain_id=domain_id, concept_name__contains=concept_name)
+        elif "domain_id" in req_json:
+            domain_id = req_json['domain_id']
+            return Concept.objects.filter(domain_id=domain_id)
+        elif "concept_name" in req_json:
+            concept_name = req_json['concept_name']
+            return Concept.objects.filter(concept_name__contains=concept_name)
+        return Concept.objects.all()

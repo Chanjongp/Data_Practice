@@ -14,4 +14,5 @@ urlpatterns = [
     path('visit/race', views.GetRaceVisitOccurrence.as_view(), name='visit_race'),
     path('visit/ethnic', views.GetEthnicVisitOccurrence.as_view(), name='visit_ethnic'),
     path('visit/age', views.GetAgeVisitOccurrence.as_view(), name='visit_age'),
+    path('conceptinfo', views.GetConecptIdInformation.as_view(), name='concept_info'),
 ]
