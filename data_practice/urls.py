@@ -20,7 +20,6 @@ from rest_framework import routers
 from db import views
 
 router = routers.DefaultRouter()
-router.register('db', views.PracticeViewSet, basename='db')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('db/', include('db.urls')),

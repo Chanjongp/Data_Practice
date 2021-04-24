@@ -1,19 +1,16 @@
+from django.core import serializers as each_serializer
 import json
 from django.db.models.fields import DateField
 from django.http.response import JsonResponse
 from django.shortcuts import render
 from rest_framework import viewsets, mixins, generics, views
-from db.models import Person, VisitOccurrence, Concept
-from .serializers import ConceptIdInfoSerializer, PracticeSerializer
-from django.db.models import Count, Q
+from db.models import Death, DrugExposure, Person, VisitOccurrence, Concept, ConditionOccurrence
+from .serializers import ConceptIdInfoSerializer, ConditionOccurrenceSerializer, DeathSerializer, DrugExposureSerializer, PersonSerializer, VisitOccurrenceSerializer
+from django.db.models import Count, Q, query
 from rest_framework.response import Response
 from rest_framework import status
 from .pagination import CustomPagination
-
-
-class PracticeViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-    queryset = Person.objects.all()
-    serializer_class = PracticeSerializer
+from db import serializers
 
 
 class GetTotalPersonSum(generics.ListAPIView):
@@ -221,3 +218,47 @@ class GetConecptIdInformation(generics.ListAPIView):
             concept_name = req_json['concept_name']
             return Concept.objects.filter(concept_name__contains=concept_name)
         return Concept.objects.all()
+
+
+class GetPersonRowInformation(generics.ListAPIView):
+    """
+    gender
+    8532 : F
+    8507 : M
+    race
+    8527 : white
+    8515 : asian
+    8516 : black
+    0 : native
+    0 : other
+
+    0 : hispanic
+    0 : nonhispanic
+    """
+    queryset = Person.objects.all()
+    pagination_class = CustomPagination
+    serializer_class = PersonSerializer
+
+
+class GetVisitRowInformation(generics.ListAPIView):
+    queryset = VisitOccurrence.objects.all()
+    pagination_class = CustomPagination
+    serializer_class = VisitOccurrenceSerializer
+
+
+class GetConditionRowInformation(generics.ListAPIView):
+    queryset = ConditionOccurrence.objects.all()
+    pagination_class = CustomPagination
+    serializer_class = ConditionOccurrenceSerializer
+
+
+class GetDrugRowInformation(generics.ListAPIView):
+    queryset = DrugExposure.objects.all()
+    pagination_class = CustomPagination
+    serializer_class = DrugExposureSerializer
+
+
+class GetDeathRowInformation(generics.ListAPIView):
+    queryset = Death.objects.all()
+    pagination_class = CustomPagination
+    # serializer_class = DeathSerializer
