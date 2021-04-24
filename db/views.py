@@ -1,16 +1,11 @@
-from django.core import serializers as each_serializer
 import json
-from django.db.models.fields import DateField
-from django.http.response import JsonResponse
-from django.shortcuts import render
-from rest_framework import viewsets, mixins, generics, views
+from rest_framework import generics
 from db.models import Death, DrugExposure, Person, VisitOccurrence, Concept, ConditionOccurrence
 from .serializers import ConceptIdInfoSerializer, ConditionOccurrenceSerializer, DeathSerializer, DrugExposureSerializer, PersonSerializer, VisitOccurrenceSerializer
-from django.db.models import Count, Q, query
+from django.db.models import Count, Q
 from rest_framework.response import Response
 from rest_framework import status
 from .pagination import CustomPagination
-from db import serializers
 
 
 class GetTotalPersonSum(generics.ListAPIView):
@@ -185,14 +180,7 @@ class GetAgeVisitOccurrence(generics.ListAPIView):
                 'visit_41_to_50': visit_41_to_50, 'visit_51_to_60': visit_51_to_60, 'visit_61_to_70': visit_61_to_70, 'visit_71_to_80': visit_71_to_80, 'visit_81_to_90': visit_81_to_90, 'visit_91_to_100': visit_91_to_100,
                 'visit_101_to_110': visit_101_to_110, 'visit_111_to_120': visit_111_to_120
                 }
-        # print(visit_0_to_10 + visit_11_to_20 + visit_21_to_30 + visit_31_to_40 + visit_41_to_50 + visit_51_to_60 +
-        #       visit_61_to_70 + visit_71_to_80 + visit_81_to_90 + visit_91_to_100 + visit_101_to_110 + visit_111_to_120)
         return Response(data)
-
-# generics.ListAPIView
-# viewsets.ModelViewSet
-
-        #    return Response({'err_msg' : 'domain_id is not in request body.'}, status=status.HTTP_404_NOT_FOUND)
 
 
 class GetConecptIdInformation(generics.ListAPIView):
@@ -239,26 +227,67 @@ class GetPersonRowInformation(generics.ListAPIView):
     pagination_class = CustomPagination
     serializer_class = PersonSerializer
 
+    def get_queryset(self):
+        # req_json = json.loads(self.request.body)
+        # if "column_name" in req_json:
+        #     column_name = req_json['column_name']
+        #     check_field = VisitOccurrence.field_exists(column_name)
+        #     if check_field:
+        #         return VisitOccurrence.objects.only(column_name)
+        return VisitOccurrence.objects.all()
+
 
 class GetVisitRowInformation(generics.ListAPIView):
-    queryset = VisitOccurrence.objects.all()
     pagination_class = CustomPagination
     serializer_class = VisitOccurrenceSerializer
 
+    def get_queryset(self):
+        # req_json = json.loads(self.request.body)
+        # if "column_name" in req_json:
+        #     column_name = req_json['column_name']
+        #     check_field = VisitOccurrence.field_exists(column_name)
+        #     if check_field:
+        #         return VisitOccurrence.objects.only('person_id')
+        return VisitOccurrence.objects.all()
+
 
 class GetConditionRowInformation(generics.ListAPIView):
-    queryset = ConditionOccurrence.objects.all()
     pagination_class = CustomPagination
     serializer_class = ConditionOccurrenceSerializer
 
+    def get_queryset(self):
+        # req_json = json.loads(self.request.body)
+        # if "column_name" in req_json:
+        #     column_name = req_json['column_name']
+        #     check_field = VisitOccurrence.field_exists(column_name)
+        #     if check_field:
+        #         return VisitOccurrence.objects.only(column_name)
+        return VisitOccurrence.objects.all()
+
 
 class GetDrugRowInformation(generics.ListAPIView):
-    queryset = DrugExposure.objects.all()
     pagination_class = CustomPagination
     serializer_class = DrugExposureSerializer
 
+    def get_queryset(self):
+        # req_json = json.loads(self.request.body)
+        # if "column_name" in req_json:
+        #     column_name = req_json['column_name']
+        #     check_field = VisitOccurrence.field_exists(column_name)
+        #     if check_field:
+        #         return VisitOccurrence.objects.only(column_name)
+        return VisitOccurrence.objects.all()
+
 
 class GetDeathRowInformation(generics.ListAPIView):
-    queryset = Death.objects.all()
     pagination_class = CustomPagination
-    # serializer_class = DeathSerializer
+    serializer_class = DeathSerializer
+
+    def get_queryset(self):
+        # req_json = json.loads(self.request.body)
+        # if "column_name" in req_json:
+        #     column_name = req_json['column_name']
+        #     check_field = VisitOccurrence.field_exists(column_name)
+        #     if check_field:
+        #         return VisitOccurrence.objects.only(column_name)
+        return VisitOccurrence.objects.all()

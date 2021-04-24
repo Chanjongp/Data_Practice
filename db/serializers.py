@@ -1,4 +1,3 @@
-from os import set_inheritable
 from rest_framework import serializers
 from db.models import Death, DrugExposure, Person, Concept, VisitOccurrence
 
@@ -55,7 +54,7 @@ class ConditionOccurrenceSerializer(serializers.ModelSerializer):
         model = VisitOccurrence
         fields = '__all__'
 
-    def get_condition_concept_name(slef, condition):
+    def get_condition_concept_name(self, condition):
         concept_name = Concept.objects.filter(
             concept_id=condition.condition_concept_id).values_list('concept_name')
         name_tuple = concept_name[0]

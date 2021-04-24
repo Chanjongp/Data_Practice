@@ -1,4 +1,17 @@
 from django.db import models
+from django.core.exceptions import FieldDoesNotExist
+
+
+@classmethod
+def model_field_exists(cls, field):
+    try:
+        cls._meta.get_field(field)
+        return True
+    except FieldDoesNotExist:
+        return False
+
+
+models.Model.field_exists = model_field_exists
 
 
 class Person(models.Model):
