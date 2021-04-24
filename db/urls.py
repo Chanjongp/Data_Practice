@@ -10,4 +10,8 @@ urlpatterns = [
     path('person/ethnic', views.GetEachEthnicPerson.as_view(), name='person_ehnic'),
     path('person/death', views.GetDeathPerson.as_view(), name='person_death'),
     path('visit/type', views.GetTypeVisitOccurrence.as_view(), name='visit_type'),
+    path('visit/gender', views.GetGenderVisitOccurrence.as_view(), name='visit_gender'),
+    path('visit/race', views.GetRaceVisitOccurrence.as_view(), name='visit_race'),
+    path('visit/ethnic', views.GetEthnicVisitOccurrence.as_view(), name='visit_ethnic'),
+    path('visit/age', views.GetAgeVisitOccurrence.as_view(), name='visit_age'),
 ]
